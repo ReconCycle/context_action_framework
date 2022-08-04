@@ -11,3 +11,8 @@ The controller does this by getting information from the vision framework, and p
 
 ![image](https://user-images.githubusercontent.com/2089122/182888132-7814702b-4494-4a88-8e98-1fd78438b069.png)
 <!-- https://www.figma.com/file/yUK2I6GPWmI2sBdQeOaIkF/Reconcycle-Action-Framework?node-id=0%3A1 -->
+
+
+# FlexBE example
+
+![image](https://user-images.githubusercontent.com/2089122/182890952-a0f812a2-0ac7-4095-9e6d-cc6bc34675e0.png)
