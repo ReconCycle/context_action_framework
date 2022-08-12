@@ -1,0 +1,7 @@
+int id_prev # action id from types.py
+bool success_prev # did the previous action succeed?
+string details_prev # json with action specific details
+---
+bool success # is able to provide next action
+int id_next
+string action_details # json
