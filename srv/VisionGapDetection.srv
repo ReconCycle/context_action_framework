@@ -1,0 +1,6 @@
+string camera # basler/realsense
+---
+bool success
+geometry_msgs/PoseStamped gap
+string gaps # json
+string detections # json
