@@ -1,12 +1,9 @@
-from setuptools import setup
+from distutils.core import setup
+from catkin_pkg.python_setup import generate_distutils_setup
 
-setup(
-    name='context_action_framework',
-    version='0.0.1',
-    description='Context Action Framework for the ReconCycle Project',
-    license='MIT',
+d = generate_distutils_setup(
     packages=['context_action_framework'],
-    author='Sebastian Ruiz and Mihael Simonič',
-    keywords=['ReconCycle'],
-    url='https://github.com/ReconCycle/context_action_framework'
+    package_dir={'': 'src'}
 )
+
+setup(**d)
