@@ -49,14 +49,24 @@ catkin_python_setup()
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
-#   # ColourDepth.msg
-# )
+add_message_files(
+  FILES
+  CutBlock.msg
+  LeverBlock.msg
+  MoveBlock.msg
+  PushBlock.msg
+  TurnOverBlock.msg
+  VisionBlock.msg
+  Detection.msg
+  Detections.msg
+  Gap.msg
+  Gaps.msg
+)
 
 ## Generate services in the 'srv' folder
 add_service_files(
   FILES
+  NextAction.srv
   VisionDetection.srv
   VisionGapDetection.srv
 )
@@ -74,6 +84,7 @@ generate_messages(
   std_msgs  # Or other packages containing msgs
   sensor_msgs
   geometry_msgs
+  context_action_framework
 )
 
 ################################################

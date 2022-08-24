@@ -1,7 +1,14 @@
-int id_prev # action id from types.py
 bool success_prev # did the previous action succeed?
+string uuid_prev # prev action UUID
 string details_prev # json with action specific details
 ---
 bool success # is able to provide next action
-int id_next
-string action_details # json
+string uuid
+int64 action_type
+# string action_block # json
+context_action_framework/CutBlock cut_block
+context_action_framework/LeverBlock lever_block
+context_action_framework/MoveBlock move_block
+context_action_framework/PushBlock push_block
+context_action_framework/TurnOverBlock turn_over_block
+context_action_framework/VisionBlock vision_block

@@ -1,4 +1,4 @@
-string camera # realsense/basler
+int8 camera # from types Camera
 ---
 bool success
-string detections # json
+context_action_framework/Detection[] detections
