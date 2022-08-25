@@ -1,19 +1,20 @@
 int8 id
+int8 tracking_id
 
-# Label intEnum
-int8 label
+int8 label    # Label intEnum
+float32 score # segmentation score
 
-# segmentation score
-float32 score
+# in pixel coords
+geometry_msgs/Transform tf_px   # transform of object center
+float32[] box_px                # non-oriented bounding box
+float32[] obb_px                # oriented bounding box
+float32[] obb_3d_px             # oriented bounding box 3d
 
-# non-oriented bounding box (meters) 
-float32[] bb
-
-# oriented bounding box (meters)
+# in world coords (meters)
+geometry_msgs/Transform tf
+float32[] box
 float32[] obb
-
-# 3d oriented bounding box (meters)
 float32[] obb_3d
 
-# transform of object center
-geometry_msgs/Transform tf
+# polygon in pixel coords
+float32[] polygon_px

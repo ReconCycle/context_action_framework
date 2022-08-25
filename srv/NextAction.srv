@@ -1,10 +1,18 @@
 bool success_prev # did the previous action succeed?
 string uuid_prev # prev action UUID
-string details_prev # json with action specific details
+int8 action_type_prev # prev action_type
+
+# the previous action can return details
+context_action_framework/CutDetails cut_details
+context_action_framework/LeverDetails lever_details
+context_action_framework/MoveDetails move_details
+context_action_framework/PushDetails push_details
+context_action_framework/TurnOverDetails turn_over_details
+context_action_framework/VisionDetails vision_details
 ---
 bool success # is able to provide next action
 string uuid
-int64 action_type
+int8 action_type
 # string action_block # json
 context_action_framework/CutBlock cut_block
 context_action_framework/LeverBlock lever_block

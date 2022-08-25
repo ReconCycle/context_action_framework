@@ -6,6 +6,10 @@ geometry_msgs/Transform from_tf
 # transform end of levering
 geometry_msgs/Transform to_tf
 
+# depth in meters
+float32 from_depth
+float32 to_depth
+
 # on which detection does the levering start
 context_action_framework/Detection from_det
 

@@ -1,25 +1,26 @@
 
-from email.policy import default
-
 from enum import IntEnum
 from typing import List, Optional, Tuple
+from dataclasses import dataclass
 import numpy as np
 from torch import Tensor
 import torch
-from geometry_msgs.msg import PoseStamped, Transform
 from shapely.geometry import Polygon
 
-from dataclasses import dataclass, field
-# from dataclasses_json import dataclass_json, config, Undefined
-# from pydantic.dataclasses import dataclass
+from geometry_msgs.msg import PoseStamped, Transform, Vector3, Quaternion
+
+from context_action_framework.msg import Detection as ROSDetection
+from context_action_framework.msg import Gap as ROSGap
+
 
 class Action(IntEnum):
-    cut = 0
-    lever = 1
-    move = 2
-    push = 3
-    turn_over = 4
-    vision = 5
+    none = 0
+    cut = 1
+    lever = 2
+    move = 3
+    push = 4
+    turn_over = 5
+    vision = 6
 
 
 class Label(IntEnum):
@@ -57,31 +58,37 @@ class Camera(IntEnum):
     basler = 0
     realsense = 1
 
-
+# todo: make Detection as close as possible to ROSDetection
 @dataclass
 class Detection:
     id: Optional[int] = None
+    tracking_id: Optional[int] = None
+
     label: Optional[Label] = None
-    
     score: Optional[float] = None
+
+    tf_px: Optional[np.ndarray] = None
+    box_px: Optional[np.ndarray] = None
+    obb_px: Optional[np.ndarray] = None
+    obb_3d_px: Optional[np.ndarray] = None
+
+    tf: Optional[np.ndarray] = None
     box: Optional[np.ndarray] = None
+    obb: Optional[np.ndarray] = None
+    obb_3d: Optional[np.ndarray] = None
+
+    polygon_px: Optional[Polygon] = None
+
+    # stuff that we only use in vision internally
     mask: Optional[Tensor] = None
     mask_contour: Optional[np.ndarray] = None
-    mask_polygon: Optional[Polygon] = None
-
-    obb_corners: Optional[np.ndarray] = None
-    obb_center: Optional[np.ndarray] = None
-    obb_rot_quat: Optional[np.ndarray] = None
-    obb_corners_meters: Optional[np.ndarray] = None
-    obb_center_meters: Optional[np.ndarray] = None
-    
-    tracking_id: Optional[int] = None
     tracking_score: Optional[float] = None
     tracking_box: Optional[np.ndarray] = None
 
 
 @dataclass
 class LeverAction:
+    id : Optional[int] = None
     from_px: Optional[np.ndarray] = None
     to_px: Optional[np.ndarray] = None
 
@@ -98,65 +105,79 @@ class LeverAction:
     pose_stamped: Optional[PoseStamped] = None
 
 
-# @dataclass
-# class MoveBlock:
-#     from_module: Optional[Module] = None
-#     from_tf: Optional[Transform] = None
-#     to_module: Optional[Module] = None
-#     to_tf: Optional[Transform] = None
-#     object_obb: Optional[np.ndarray] = None
-#     robot: Optional[Robot] = None
-#     end_effector: Optional[EndEffector] = None
 
+def detections_to_ros(detections):
+    ros_detections = []
+    for detection in detections:
+        # todo: finish this
+        
+        polygon_exterior_coords = np.array(detection.polygon_px.exterior.coords)
+        polygon_list = polygon_exterior_coords.ravel().tolist()
+        
+        # undo_ravel = np.asarray(polygon_list).reshape(-1, 2)
+        # undo_ravel_success = np.array_equal(polygon_exterior_coords, undo_ravel)
+        # print("undo_ravel_success", undo_ravel_success)
+        
+        ros_detection = ROSDetection(
+            id = detection.id,
+            tracking_id = detection.tracking_id,
 
-# @dataclass
-# class LeverBlock:
-#     module: Optional[Module] = None
-#     from_tf: Optional[Transform] = None
-#     to_tf: Optional[Transform] = None
-#     object_obb: Optional[np.ndarray] = None
-#     robot: Optional[Robot] = None
-#     end_effector: Optional[EndEffector] = None
+            label = detection.label.value, 
+            score = detection.score,
+            
+            tf_px = Transform(Vector3(*detection.tf_px[0], 0), Quaternion(*detection.tf_px[1])),
+            box_px = detection.box_px.astype(float).ravel().tolist(),
+            obb_px = detection.obb_px.astype(float).ravel().tolist(),
+            # todo: obb_3d_px = ,
 
+            tf = Transform(Vector3(*detection.tf_px[0], 0), Quaternion(*detection.tf_px[1])),
+            box = detection.box.ravel().tolist(),
+            obb = detection.obb.ravel().tolist(),
+            # todo: obb_3d = ,
 
-# @dataclass
-# class CutBlock:
-#     from_module: Optional[Module] = None
-#     from_tf: Optional[Transform] = None
-#     to_module: Optional[Module] = None
-#     to_tf: Optional[Transform] = None
-#     object_obb: Optional[np.ndarray] = None
-#     robot: Optional[Robot] = None
-#     end_effector: Optional[EndEffector] = None
-#     # todo: specify where to make the cut, including which side to insert into cutter
-
-
-# @dataclass
-# class TurnOverBlock:
-#     module: Optional[Module] = None
-#     tf: Optional[Transform] = None
-#     object_obb: Optional[np.ndarray] = None
-#     robot: Optional[Robot] = None
-#     end_effector: Optional[EndEffector] = None
-
-
-# @dataclass
-# class PushBlock:
-#     module: Optional[Module] = None
-#     from_tf: Optional[Transform] = None
-#     to_tf: Optional[Transform] = None
-#     robot: Optional[Robot] = None
-#     end_effector: Optional[EndEffector] = None
-
-
-# @dataclass
-# class VisionBlock:
-#     """Vision Block
+            polygon_px = polygon_list
+        )
+        ros_detections.append(ros_detection)
     
-#     Constructor arguments:
-#     :param tf: tf of camera
-#     """
-#     camera: Optional[Camera] = None
-#     module: Optional[Module] = None
-#     tf: Optional[Transform] = None
-#     gap_detection: Optional[bool] = None
+    return ros_detections
+
+def detections_to_py(ros_detections):
+    detections = []
+
+    for ros_detection in ros_detections:
+        detection = Detection(
+            id = ros_detection.id,
+            tracking_id = ros_detection.tracking_id,
+
+            label = Label(ros_detection.label),
+            score = ros_detection.score,
+
+            tf_px = [ros_detection.tf_px.translation, ros_detection.tf_px.rotation],
+            box_px = np.asarray(ros_detection.box_px).reshape(-1, 2),
+            obb_px = np.asarray(ros_detection.obb_px).reshape(-1, 2),
+            # todo: obb_3d_px = ,
+            
+            tf = [ros_detection.tf.translation, ros_detection.tf.rotation],
+            box = np.asarray(ros_detection.box).reshape(-1, 2),
+            obb = np.asarray(ros_detection.obb).reshape(-1, 2),
+            # todo: obb_3d = ,
+
+            polygon_px=Polygon(np.asarray(ros_detection.polygon_px).reshape(-1, 2)),
+        )
+        detections.append(detection)
+
+    return detections
+
+def gaps_to_ros(gaps):
+    ros_gaps = []
+    for gap in gaps:
+        # todo: finish this
+        ros_gap = ROSGap(
+            id = gap.id,
+            from_depth = gap.from_depth,
+            to_depth = gap.to_depth
+        )
+    
+        ros_gaps.append(ros_gap)
+    
+    return ros_gaps

@@ -1,9 +1,0 @@
-int8 camera # from types Camera
----
-bool success
-# geometry_msgs/PoseStamped gap
-# string gaps # json
-# string detections # json
-
-context_action_framework/Detection[] detections
-context_action_framework/Gap[] gaps

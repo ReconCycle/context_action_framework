@@ -51,16 +51,24 @@ catkin_python_setup()
 ## Generate messages in the 'msg' folder
 add_message_files(
   FILES
+  Detection.msg
+  Detections.msg
+  Gap.msg
+  Gaps.msg
+
   CutBlock.msg
   LeverBlock.msg
   MoveBlock.msg
   PushBlock.msg
   TurnOverBlock.msg
   VisionBlock.msg
-  Detection.msg
-  Detections.msg
-  Gap.msg
-  Gaps.msg
+
+  CutDetails.msg
+  LeverDetails.msg
+  MoveDetails.msg
+  PushDetails.msg
+  TurnOverDetails.msg
+  VisionDetails.msg
 )
 
 ## Generate services in the 'srv' folder
@@ -68,7 +76,6 @@ add_service_files(
   FILES
   NextAction.srv
   VisionDetection.srv
-  VisionGapDetection.srv
 )
 
 ## Generate actions in the 'action' folder
