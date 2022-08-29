@@ -21,6 +21,7 @@ class Action(IntEnum):
     push = 4
     turn_over = 5
     vision = 6
+    vice = 7
 
 
 class Label(IntEnum):
@@ -57,6 +58,28 @@ class EndEffector(IntEnum):
 class Camera(IntEnum):
     basler = 0
     realsense = 1
+
+
+# this already exists in ROS!
+# @dataclass
+# class Transform:
+#     position: Optional[np.ndarray] = None
+#     rotation: Optional[np.ndarray] = None
+
+@dataclass
+class Location:
+    module: Optional[Module] = None
+    tf: Optional[Transform] = None
+
+@dataclass
+class Locations:
+    vision_above_vice = Location(Module.vice, Transform([0.3, 0.3, 0.4], [0.0, 0.0, -1.0, 0.0]))
+    vision_above_vice_module = Location(Module.vice, Transform([0.3, 0.3, 0.6], [0.0, 0.0, -1.0, 0.0]))
+    push_device_pin_start = Location(Module.vice, Transform([0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0])) # todo
+    push_device_pin_end = Location(Module.vice, Transform([0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0])) # todo
+    move_vice_slide = Location(Module.vice, Transform([0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0])) # todo
+
+
 
 # todo: make Detection as close as possible to ROSDetection
 @dataclass
@@ -103,7 +126,6 @@ class LeverAction:
     bb_camera: Optional[np.ndarray] = None
 
     pose_stamped: Optional[PoseStamped] = None
-
 
 
 def detections_to_ros(detections):
@@ -181,3 +203,6 @@ def gaps_to_ros(gaps):
         ros_gaps.append(ros_gap)
     
     return ros_gaps
+
+def gaps_to_py(gaps):
+    pass

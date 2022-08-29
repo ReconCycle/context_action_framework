@@ -61,6 +61,7 @@ add_message_files(
   MoveBlock.msg
   PushBlock.msg
   TurnOverBlock.msg
+  ViceBlock.msg
   VisionBlock.msg
 
   CutDetails.msg
@@ -68,6 +69,7 @@ add_message_files(
   MoveDetails.msg
   PushDetails.msg
   TurnOverDetails.msg
+  ViceDetails.msg
   VisionDetails.msg
 )
 
