@@ -8,7 +8,7 @@ context_action_framework/LeverDetails lever_details
 context_action_framework/MoveDetails move_details
 context_action_framework/PushDetails push_details
 context_action_framework/TurnOverDetails turn_over_details
-context_action_framework/VisionDetails vice_details
+context_action_framework/ViceDetails vice_details
 context_action_framework/VisionDetails vision_details
 ---
 bool success # is able to provide next action
@@ -20,5 +20,5 @@ context_action_framework/LeverBlock lever_block
 context_action_framework/MoveBlock move_block
 context_action_framework/PushBlock push_block
 context_action_framework/TurnOverBlock turn_over_block
-context_action_framework/VisionBlock vice_block
+context_action_framework/ViceBlock vice_block
 context_action_framework/VisionBlock vision_block

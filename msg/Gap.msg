@@ -11,10 +11,10 @@ float32 from_depth
 float32 to_depth
 
 # on which detection does the levering start
-context_action_framework/Detection from_det
+# context_action_framework/Detection from_det
 
 # on/in which detection does the levering end
-context_action_framework/Detection to_det
+# context_action_framework/Detection to_det
 
 # oriented bounding box of gap (meters)
 float32[] obb
