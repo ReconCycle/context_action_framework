@@ -15,13 +15,16 @@ from context_action_framework.msg import Gap as ROSGap
 
 class Action(IntEnum):
     none = 0
-    cut = 1
-    lever = 2
-    move = 3
-    push = 4
-    turn_over = 5
-    vision = 6
-    vice = 7
+    start = 1
+    end = 2
+    
+    cut = 3
+    lever = 4
+    move = 5
+    push = 6
+    turn_over = 7
+    vision = 8
+    vice = 9
 
 
 class Label(IntEnum):
