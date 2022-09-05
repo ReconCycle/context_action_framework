@@ -2,62 +2,258 @@
 
 This package provides a collection of common class definitions that feature extractors (e.g., in vision pipeline) and action predictors should use.
 
-In this framework, a general (dis)assembly process is inspired by a Markov Decision Process (MDP). At time $T_j$ the next (dis)assembly action $A_j$ is predicted based on $A_{j-1}, ..., A_0$ and current context (e.g., sensory data, workcell state, above which module the robot is currently manipulating).
+## Introduction
 
-The system is currently made up of a vision pipeline, an action framework and a controller. In principle these frameworks don't know anything about each other. The controller is responsible for deciding on the actions to be performed in the system.
+The system is split into the following components:
 
-The controller does this by getting information from the vision framework, and possibly other sources. It uses actions history and a prediction model, to determine which action should be performed next given current context. To carry out this action it calls the appropriate action block and passes it the appropriate low-level information needed to carry out the action.
+- Controller: requests and carries out actions
+- Context
+- [Action Predictor](https://github.com/ReconCycle/action_predictor): provides the **get next action** service
+- Action Blocks:
+  - Cut Block
+  - Lever Block
+  - Move Block
+  - Push Block
+  - Turn Over Block
+  - Vice Block
+  - Vision Block
 
+The system has action blocks, which are high level components, for example: a move block that specifies the start and end positions of a pick-and-place operation and a vision block that gets object positions based on camera images. 
+
+The system has a controller that requests the next action to take from the [get next action service](https://github.com/ReconCycle/action_predictor) a.k.a. action predictor. The action predictor doesn't know anything about the controller. The controller is responsible for carrying out the actions.
+
+![Diagram](./readme_diagram.svg)
+
+The action predictor stores the previous predicted actions and whether they were successful. It uses this in a prediction model to determine which action should be performed next given the current context. The action predictor returns the next action to the controller. The system is illustrated in the above diagram.
+
+##  Programming guideline
+
+This package also serves as a library that provides a collection of common class definitions that should be used over the entire project.
 
 ## Controller
 
-
-![image](https://user-images.githubusercontent.com/2089122/182888132-7814702b-4494-4a88-8e98-1fd78438b069.png)
+<!-- https://user-images.githubusercontent.com/2089122/182888132-7814702b-4494-4a88-8e98-1fd78438b069.png -->
 <!-- https://www.figma.com/file/yUK2I6GPWmI2sBdQeOaIkF/Reconcycle-Action-Framework?node-id=0%3A1 -->
 
-The controller stores a history of previous task steps (requests to the vision system, the vision response, the action prediction, and the robot action success).
+The controller requests the next action to take from the action predictor. The action predictor returns an action block. The controller carries out the action as described by the action block and returns the context to the action predictor.
 
-Based on this historic data, current cell state (`Get context` block), and a prediction model, the next action is predicted (`Get next action` block).
+The controller is implemented as a FlexBe behaviour.
+
+![image](https://user-images.githubusercontent.com/2089122/182890952-a0f812a2-0ac7-4095-9e6d-cc6bc34675e0.png)
+
+### FlexBE
+
+Several FlexBE states should be created:
+- `Get context` should return the current context and pass it to the next state
+- `Get next action` (read recommended action) is a wrapper to the action prediction model, and should return the next action given the context
+
+
+For each of the actions, a separate FlexBe state that calls an appropriate ActionBlock is needed. 
+
+## Action Predictor
+
+The [action predictor](https://github.com/ReconCycle/action_predictor) is described in detail in it's own readme.
 
 ## Context
 
-The context is defined as the work-cell module that is being operated in and the sensory information.
+The context is defined as the state of the system including the work-cell module that is being operated in, the positions of objects in the system, and the state of the robots and the modules.
 
-The modules are: vice module, cutter module, empty table. 
-
-
+These are all specified as enums in [types.py](src/context_action_framework/types.py).
 
 
+The modules are: 
+- vision
+- panda1
+- panda2
+- vice
+- cutter
+
+The robots are:
+- panda1
+- panda2
+
+The End effectors are:
+- soft hand
+- soft gripper
+- screwdriver
+
+The Cameras are:
+- basler
+- realsense
+
+The Labels of objects are:
+- hca front
+- hca back
+- hca side 1
+- hca side 2
+- battery
+- pcb
+- internals
+- pcb covered
+- palastic clip
+
+The actions are:
+- none
+- start
+- end
+- cut
+- lever
+- move
+- push
+- turn over
+- vision
+- vice
+
+These are all specified as enums in [types.py](src/context_action_framework/types.py).
+
+## Action Blocks
+
+An action block is a high level specification of an operation that can be carried out on the Reconcycle cells. The action block can be a physical movement, an information extractor from the physical environment, or a combination of the two.
+
+Action blocks are high level blocks and an action block can consist of multiple actions, for example, the cut block moves an object into the cutter, and then the cutter is activated to cut the object.
 
 
-## Modality-specific feature extractors 
+### [Cut Block](msg/CutBlock.msg)
 
-Currently, we only have vision (see [Vision Library below](#Vision-Library)). In the future, this will be extended to tactile skills as well.
+The cut block should specify the initial position of the object and the cutter module, where the object is to be cut.
 
-## Vision Library
+[CutBlock.msg](msg/CutBlock.msg): 
+- enum from_module
+- Transform from_tf
+- enum to_module
+- Transform to_tf
+- array obb_3d
+- enum robot
+- int end_effector
 
-The vision system is given a specific task such as "gap detection" or "parts detection". The gap detection is useful for levering actions. The parts detection is useful for moving actions. All coordinates of parts are given in world coordinates with respect to the module. 
+[CutDetails.msg](msg/CutDetails.msg): 
+- bool success
 
-The gap detection runs parts detection as well.
+### [Lever Block](msg/LeverBlock.msg)
 
-### Parts Detection
+The lever block should specify from where to where to carry out the levering action and with which end effector and robot.
+
+[LeverBlock.msg](msg/LeverBlock.msg):
+- enum module
+- Transform from_tf
+- Transform to_tf
+- array obb_3d
+- enum robot
+- enum end_effector
+
+[LeverDetails.msg](msg/LeverDetails.msg):
+- bool success
+
+### [Move Block](msg/MoveBlock.msg)
+
+The move block specifies the start and end positions of an object and which end effector and robot should do the moving.
+
+[MoveBlock.msg](msg/MoveBlock.msg): 
+- enum from_module
+- Transform from_tf
+- enum to_module
+- Transform to_tf
+- array obb_3d
+- enum robot
+- enum end_effector
+
+[MoveDetails.msg](msg/MoveDetails.msg):
+- bool success
+
+### [Push Block](msg/PushBlock.msg)
+
+The push block specifies the start and end positions of the pushing action and with which robot and end effector the push action should be carried out with.
+
+[PushBlock.msg](msg/PushBlock.msg):
+- enum module
+- Transform from_tf
+- Trnasform to_tf
+- array obb_3d
+- enum robot
+- enum end_effector
+
+[PushDetails.msg](msg/PushDetails.msg):
+- bool success
+
+### [Turn Over Block](msg/TurnOverBlock.msg)
+
+The turn over block specifies the position and 3d oriented bounding box of the object that should be picked up, rotated 180 degrees, and placed down again, with the specified robot and end effector.
+
+[TurnOverBlock.msg](msg/TurnOverBlock.msg):
+- enum module
+- Transform tf
+- array obb_3d
+- enum robot
+- enum end_effector
+
+[TurnOverDetails.msg](msg/TurnOverDetails.msg):
+- bool success
+
+### [Vice Block](msg/ViceBlock.msg)
+
+The vice block specifies whether the vice should clamp and turn over or only clamp, or only turn over.
+
+[ViceBlock.msg](msg/ViceBlock.msg):
+- enum module
+- bool clamp
+- bool turn_over
+
+[ViceDetails.msg](msg/ViceDetails.msg):
+- bool success
+
+### [Vision Block](msg/VisionBlock.msg)
+
+The vision block specifies whether gap detections should be carried out, which camera to use and above which module. Gap detection is only possible with the realsense camera and also only the realsense camera can be moved to a specified position.
+
+The gap detection is useful for levering actions. The parts detection is useful for moving actions. All coordinates of parts are given in world coordinates with respect to the module. 
 
 The parts detection uses a neural network called Yolact for parts segmentation. It uses a kalman filter for tracking and reidentification. 
 
+The gap detection uses the depth image and a classical clusturing approach to determine gaps in the device.
 
+The vision details are a list of detections and gaps (if gap detections were requested and available).
 
-Input: rgb image, module, image to world coord transform
-Output: list(part)
+[VisionBlock](msg/VisionBlock.msg):
+- enum camera
+- enum module
+- transform tf
+- bool gap_detection
 
-### Gap Detection
+[VisionDetails](msg/VisionDetails.msg): 
+- bool gap_detection
+- Detection[] detections
+- Gap[] gaps
 
-The gap detection is written to provide the gaps in the device that are most useful for levering.
+A detection is defined as the whole or part of a device.
 
-Input: aligned rgb and depth image, module, camera position
-Output: parts detection, gap centroid, levering direction, gap 3D box
+[Detection](msg/Detection.msg):
+- int id
+- int tracking_id
+- enum label
+- float score
 
+- Transform to_px
+- array box_px
+- array obb_px
+- array obb_3d_px
 
-### Camera Position
+- Transform tf
+- array box
+- array obb
+- array obb_3d
+
+- array polygon_px
+
+[Gap](msg/Gap.msg):
+- int id
+- Transform from_tf
+- Transform to_tf
+- float from_depth
+- float to_depth
+- array obb
+- array obb_3d
+
+#### Camera Position
 
 The camera position needs to be known such that we can transform from image coordinates to world-coordinates relative to the module we are looking at.
 
@@ -67,143 +263,7 @@ When the camera is fixed, the world coordinates are determined by the position o
 
 When the camera is mounted to the robot, the extrinsic position of the camera is determined by the robot transform and the hand-eye transform. The position of the object is then calculated based on camera intrinsics and distance of object from camera. Without the depth it is not possible to determine the position of an object when the object dimensions are unknown.
 
+### More Tactile Skills to come...
 
-## Action Blocks Library
+Currently, we only have vision. In the future, this will be extended to tactile skills as well.
 
-The action blocks are functions that carry out actions on the robot(s). These action blocks may use other action blocks within them. For example, the cut block moves an object into the cutter, and this movement is carried out using the move block.
-
-<!-- | Action | Features | 
-| -------- | -------- |
-| Lever    | 3D box + centroid, levering direction    | 
-| Cut      | length of the object to be cut, where to make the cut, which side to insert     | 
-| Move     | Initial object pose, final object pose, (preferable grasping tool & tool specific parameters)     | 
-| Push     | Pushing pose, pushing force, (preferable pushing tool with parameters)     |  -->
-
-### Move Block
-
-The move block picks up an object and moves it to a new position on the same or different module.
-
-Input: $(x_1, y_1, \text{module}_1), (\text{width}, \text{height}), (x_2, y_2, \text{module}_2), \text{robot}, \text{end effector}$
-
-Output: Success/Failure
-
-### Lever Block
-
-Input: (x, y, z), 3D bounding box, direction, robot, module, end effector
-
-Output:Success/Failure
-
-### Cut Block
-
-The cut block should move the object from a position to the vice, where it is to be cut.
-
-Input: part, module, where to make cut, which side to insert
-
-Output: Success/Failure
-
-### Push Block
-
-Input: Pushing pose, pushing force, (preferable pushing tool with parameters)
-
-Output: Success/Failure
-
-### Turn Over Block
-
-Turn over the part 180 degrees.
-
-Input: part, module, robot, end effector
-
-Output: Success/Failure
-
-
-
-##  Programming guideline
-
-This package also serves as a library that provides a collection of common class definitions that feature extractors and action predictors should use.
-
-### Part Definition
-
-A part is defined as the whole or part of a device (the device itself is considered a part.
-
-A part detection has the following properties: `id, label, score, box, mask, obb corners, obb center, obb rotation quarternion`
-
-Each part is defined with the following properties:
-
-| Name | Type | Description |
-| -------- | -------- | -------- |
-| id     | int     | Text     |
-| label     | int (enum)     | Text     |
-| score  | float     | Text     |
-| box     | array     | Text     |
-| mask    | Tensor     | Text     |
-| \*mask contour    | Tensor     | Text     |
-| \*mask polygon    | Tensor     | Text     |
-| obb corners (camera-coords)| Text     | Text     |
-| obb center (camera-coords)    | Text     | Text     |
-| obb rotation quarternion     | Text     | Text     |
-| obb corners world-coords     | Text     | Text     |
-| obb center (world-coords)     | Text     | Text     |
-| id     | Text     | Text     |
-
-Rows with a \* are not published because they are big or not necessary outside of the vision library.
-
-### Label Definition
-
-The part label is an enum with the following definition:
-
-| Name | Int Value | 
-| -------- | -------- | 
-| hca_front     | 0     |
-| hca_back     | 1     |
-| hca_side1     | 2     |
-| hca_side2     | 3     |
-| battery     | 4     |
-| pcb     | 5     |
-| internals     | 6     |
-| pcb_covered     | 7     |
-| plastic_clip     | 8     |
-
-### Action Definition
-
-The action is an enum with the following definition:
-
-
-
-| Name | Int Value | 
-| -------- | -------- |
-| move     | 0     |
-| move     | 1     |
-| move     | 2     |
-| move     | 3     |
-| move     | 4     |
-
-
-### Python Classes Structure
-
-Each Action block should inherit from ActionBlock superclass, which defines the following methods:
-...
-
-Each Feature extraction block should inherit from FeatureExtractor superclass, which defines the following methods:
-...
-
-### ROS integration
-
-Each feature extractor should provide a ROS service wrapper in the `/feature_extractors` namespace.
-
-In the request, the object id should be given
-
-For example, calling `/feature_extractor/levering`, with `'id: hca_1'` returns: (parameters for levering that are used in the LeveringActionBlock)
-
-
-### FlexBe integration
-
-The controller is implemented as a FlexBe behaviour. 
-![image](https://user-images.githubusercontent.com/2089122/182890952-a0f812a2-0ac7-4095-9e6d-cc6bc34675e0.png)
-
-
-Several FlexBE states should be created:
-- `Get context` should return the current context and pass it to the next state
-- `Get next action` (read recommended action) is a wrapper to the action prediction model, and should return the next action given the context
-
-
-For each of the actions, a separate FlexBe state that calls an appropriate ActionBlock is needed. 
