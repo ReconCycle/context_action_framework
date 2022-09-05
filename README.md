@@ -35,7 +35,7 @@ This package also serves as a library that provides a collection of common class
 <!-- https://user-images.githubusercontent.com/2089122/182888132-7814702b-4494-4a88-8e98-1fd78438b069.png -->
 <!-- https://www.figma.com/file/yUK2I6GPWmI2sBdQeOaIkF/Reconcycle-Action-Framework?node-id=0%3A1 -->
 
-The controller requests the next action to take from the action predictor. The action predictor returns an action block. The controller carries out the action as described by the action block and returns the context to the action predictor.
+The controller requests the next action to take from the action predictor. The action predictor returns an [action block](#action-blocks). The controller carries out the action as described by the action block and returns the context to the action predictor in the form of action details.
 
 The controller is implemented as a FlexBe behaviour.
 
@@ -53,6 +53,7 @@ For each of the actions, a separate FlexBe state that calls an appropriate Actio
 ## Action Predictor
 
 The [action predictor](https://github.com/ReconCycle/action_predictor) is described in detail in it's own readme.
+The action predictor provides the **get next action** service and it returns an [action block](#action-blocks).
 
 ## Context
 
@@ -231,17 +232,14 @@ A detection is defined as the whole or part of a device.
 - int tracking_id
 - enum label
 - float score
-
 - Transform to_px
 - array box_px
 - array obb_px
 - array obb_3d_px
-
 - Transform tf
 - array box
 - array obb
 - array obb_3d
-
 - array polygon_px
 
 [Gap](msg/Gap.msg):
