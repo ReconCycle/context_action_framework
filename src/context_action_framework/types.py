@@ -6,7 +6,9 @@ import numpy as np
 from torch import Tensor
 import torch
 from shapely.geometry import Polygon
+import json
 
+from rospy_message_converter import message_converter
 from geometry_msgs.msg import PoseStamped, Transform, Vector3, Quaternion
 
 from context_action_framework.msg import Detection as ROSDetection
@@ -242,3 +244,32 @@ def gaps_to_py(ros_gaps):
         )
         gaps.append(gap)
     return gaps
+
+
+def ros_to_str(ros_msg):
+    if ros_msg is None:
+        return ""
+    json_msg = message_converter.convert_ros_message_to_dictionary(ros_msg) # convert to string
+    return json.dumps(json_msg)
+    
+def str_to_ros(action_type, str_msg, is_block=True):
+    # print("str_to_ros", type(str_msg))
+    if str_msg == "" or str_msg is None or action_type is None:
+        return None
+    
+    action_type_name = Action(action_type).name
+    # convert snake case to camel case
+    action_type_name = ''.join(word.title() for word in action_type_name.split('_'))
+    # parse action to name
+    ros_msg_name = 'context_action_framework/' + action_type_name
+    if is_block:
+        ros_msg_name += "Block"
+    else:
+        ros_msg_name += "Details"
+    # print("ros_msg_name", ros_msg_name)
+    
+    # convert string to json first
+    json_msg = str_msg
+    if isinstance(str_msg, str):
+        json_msg = json.loads(str_msg)               
+    return message_converter.convert_dictionary_to_ros_message(ros_msg_name, json_msg)
