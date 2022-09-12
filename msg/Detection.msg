@@ -8,7 +8,6 @@ float32 score # segmentation score
 geometry_msgs/Transform tf_px   # transform of object center
 float32[] box_px                # non-oriented bounding box
 float32[] obb_px                # oriented bounding box
-float32[] obb_3d_px             # oriented bounding box 3d
 
 # in world coords (meters)
 geometry_msgs/Transform tf
