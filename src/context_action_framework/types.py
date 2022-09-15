@@ -103,18 +103,18 @@ class Detection:
     tf_px: Optional[Transform] = None
     box_px: Optional[np.ndarray] = None
     obb_px: Optional[np.ndarray] = None
-    obb_3d_px: Optional[np.ndarray] = None
+    center_px: Optional[np.ndarray] = None
 
     tf: Optional[Transform] = None
     box: Optional[np.ndarray] = None
     obb: Optional[np.ndarray] = None
+    center: Optional[np.ndarray] = None
+
     obb_3d: Optional[np.ndarray] = None
 
     polygon_px: Optional[Polygon] = None
 
     # stuff that we only use in vision internally
-    center_px: Optional[np.ndarray] = None
-    center: Optional[np.ndarray] = None
     mask: Optional[Tensor] = None
     mask_contour: Optional[np.ndarray] = None
     tracking_score: Optional[float] = None
@@ -162,7 +162,7 @@ def detections_to_ros(detections):
         # undo_ravel = np.asarray(polygon_list).reshape(-1, 2)
         # undo_ravel_success = np.array_equal(polygon_exterior_coords, undo_ravel)
         # print("undo_ravel_success", undo_ravel_success)
-        
+
         ros_detection = ROSDetection(
             id = detection.id,
             tracking_id = detection.tracking_id,
@@ -174,13 +174,14 @@ def detections_to_ros(detections):
             # tf_px = Transform(Vector3(*detection.tf_px[0], 0), Quaternion(*detection.tf_px[1])),
             box_px = detection.box_px.astype(float).ravel().tolist(),
             obb_px = detection.obb_px.astype(float).ravel().tolist(),
-            # todo: obb_3d_px = ,
+            center_px = detection.center_px.astype(float).tolist(),
 
             tf = detection.tf,
             # tf = Transform(Vector3(*detection.tf_px[0], 0), Quaternion(*detection.tf_px[1])),
             box = detection.box.ravel().tolist(),
             obb = detection.obb.ravel().tolist(),
-            # todo: obb_3d = ,
+            center = detection.center.tolist(),
+            obb_3d = detection.obb_3d.ravel().tolist(),
 
             polygon_px = polygon_list
         )
@@ -203,13 +204,14 @@ def detections_to_py(ros_detections):
             # tf_px = [ros_detection.tf_px.translation, ros_detection.tf_px.rotation],
             box_px = np.asarray(ros_detection.box_px).reshape(-1, 2),
             obb_px = np.asarray(ros_detection.obb_px).reshape(-1, 2),
-            # todo: obb_3d_px = ,
+            center_px = np.asarray(ros_detection.center_px),
             
             tf = ros_detection.tf,
             # tf = [ros_detection.tf.translation, ros_detection.tf.rotation],
             box = np.asarray(ros_detection.box).reshape(-1, 2),
             obb = np.asarray(ros_detection.obb).reshape(-1, 2),
-            # todo: obb_3d = ,
+            center = np.asarray(ros_detection.center),
+            obb_3d = np.asarray(ros_detection.obb_3d).reshape(-1, 3),
 
             polygon_px=Polygon(np.asarray(ros_detection.polygon_px).reshape(-1, 2)),
         )
