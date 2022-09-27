@@ -157,17 +157,22 @@ def detections_to_ros(detections):
         # undo_ravel = np.asarray(polygon_list).reshape(-1, 2)
         # undo_ravel_success = np.array_equal(polygon_exterior_coords, undo_ravel)
         # print("undo_ravel_success", undo_ravel_success)
-        polygon_px = np.array(detection.polygon_px.exterior.coords).ravel().tolist()
-        polygon = np.array(detection.polygon.exterior.coords).ravel().tolist()
-        if len(polygon_px) % 2 == 1:
-            print("SOMETHING WENT WRONG WITH POLYGON RAVEL. Not divisible by 2.")
-            print("len(ros_detection.polygon_px)", len(polygon_px))
-            print("shape detection.polygon_px.exterior.coords", np.array(detection.polygon_px.exterior.coords).shape)
-
-        if len(polygon) % 3 == 1:
-            print("SOMETHING WENT WRONG WITH POLYGON RAVEL. Not divisible by 3.")
-            print("len(ros_detection.polygon)", len(polygon))
-            print("shape detection.polygon.exterior.coords", np.array(detection.polygon.exterior.coords).shape)
+        polygon_px = []
+        if detection.polygon_px is not None:
+            polygon_px = np.array(detection.polygon_px.exterior.coords).ravel().tolist()
+        
+            if len(polygon_px) % 2 == 1:
+                print("SOMETHING WENT WRONG WITH POLYGON RAVEL. Not divisible by 2.")
+                print("len(ros_detection.polygon_px)", len(polygon_px))
+                print("shape detection.polygon_px.exterior.coords", np.array(detection.polygon_px.exterior.coords).shape)
+        
+        polygon = []   
+        if detection.polygon is not None:
+            polygon = np.array(detection.polygon.exterior.coords).ravel().tolist()
+            if len(polygon) % 3 == 1:
+                print("SOMETHING WENT WRONG WITH POLYGON RAVEL. Not divisible by 3.")
+                print("len(ros_detection.polygon)", len(polygon))
+                print("shape detection.polygon.exterior.coords", np.array(detection.polygon.exterior.coords).shape)
 
         ros_detection = ROSDetection(
             id = detection.id,
