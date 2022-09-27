@@ -183,19 +183,19 @@ def detections_to_ros(detections):
             
             tf_px = detection.tf_px,
             # tf_px = Transform(Vector3(*detection.tf_px[0], 0), Quaternion(*detection.tf_px[1])),
-            box_px = detection.box_px.astype(float).ravel().tolist(),
-            obb_px = detection.obb_px.astype(float).ravel().tolist(),
-            center_px = detection.center_px.astype(float).tolist(),
+            box_px = detection.box_px.astype(float).ravel().tolist() if detection.box_px is not None else [],
+            obb_px = detection.obb_px.astype(float).ravel().tolist() if detection.obb_px is not None else [],
+            center_px = detection.center_px.astype(float).tolist() if detection.center_px is not None else [],
             polygon_px = polygon_px,
 
             tf = detection.tf,
             # tf = Transform(Vector3(*detection.tf_px[0], 0), Quaternion(*detection.tf_px[1])),
-            box = detection.box.ravel().tolist(),
-            obb = detection.obb.ravel().tolist(),
-            center = detection.center.tolist(),
+            box = detection.box.ravel().tolist() if detection.box is not None else [],
+            obb = detection.obb.ravel().tolist() if detection.obb is not None else [],
+            center = detection.center.tolist() if detection.center is not None else [],
             polygon = polygon,
             
-            obb_3d = detection.obb_3d.ravel().tolist(),
+            obb_3d = detection.obb_3d.ravel().tolist() if detection.obb_3d is not None else [],
         )
 
 
