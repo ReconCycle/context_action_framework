@@ -1,5 +1,5 @@
-int8 id
-int8 tracking_id
+int64 id
+int64 tracking_id
 
 int8 label    # Label intEnum
 float32 score # segmentation score
