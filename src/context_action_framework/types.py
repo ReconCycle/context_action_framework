@@ -1,9 +1,8 @@
 
 from enum import IntEnum
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, Any
 from dataclasses import dataclass
 import numpy as np
-from torch import Tensor
 import torch
 from shapely.geometry import Polygon
 import json
@@ -115,7 +114,7 @@ class Detection:
     obb_3d: Optional[np.ndarray] = None
 
     # stuff that we only use in vision internally
-    mask: Optional[Tensor] = None
+    mask: Optional[Any] = None
     mask_contour: Optional[np.ndarray] = None
     tracking_score: Optional[float] = None
     tracking_box: Optional[np.ndarray] = None
