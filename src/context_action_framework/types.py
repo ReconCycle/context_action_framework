@@ -3,7 +3,6 @@ from enum import IntEnum
 from typing import List, Optional, Tuple, Any
 from dataclasses import dataclass
 import numpy as np
-import torch
 from shapely.geometry import Polygon
 import json
 
