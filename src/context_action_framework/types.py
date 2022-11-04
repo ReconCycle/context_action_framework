@@ -235,6 +235,9 @@ def detections_to_py(ros_detections):
 
 
 def gaps_to_ros(gaps):
+    if gaps is None:
+        return []
+    
     ros_gaps = []
     for gap in gaps:
         ros_gap = ROSGap(
