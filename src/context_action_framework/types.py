@@ -102,13 +102,13 @@ class Detection:
     box_px: Optional[np.ndarray] = None
     obb_px: Optional[np.ndarray] = None
     center_px: Optional[np.ndarray] = None
-    polygon_px: Optional[Polygon] = None
+    # polygon_px: Optional[Polygon] = None
 
     tf: Optional[Transform] = None
     box: Optional[np.ndarray] = None
     obb: Optional[np.ndarray] = None
     center: Optional[np.ndarray] = None
-    polygon: Optional[Polygon] = None
+    # polygon: Optional[Polygon] = None
 
     obb_3d: Optional[np.ndarray] = None
 
@@ -164,7 +164,7 @@ def detections_to_ros(detections):
                 print("len(ros_detection.polygon_px)", len(polygon_px))
                 print("shape detection.polygon_px.exterior.coords", np.array(detection.polygon_px.exterior.coords).shape)
         
-        polygon = []   
+        polygon = []
         if detection.polygon is not None:
             polygon = np.array(detection.polygon.exterior.coords).ravel().tolist()
             if len(polygon) % 3 == 1:
@@ -175,23 +175,22 @@ def detections_to_ros(detections):
         ros_detection = ROSDetection(
             id = detection.id,
             tracking_id = detection.tracking_id,
+            group_id = detection.group_id,
 
-            label = detection.label.value, 
+            label = detection.label.value,
             score = detection.score,
             
             tf_px = detection.tf_px,
-            # tf_px = Transform(Vector3(*detection.tf_px[0], 0), Quaternion(*detection.tf_px[1])),
             box_px = detection.box_px.astype(float).ravel().tolist() if detection.box_px is not None else [],
             obb_px = detection.obb_px.astype(float).ravel().tolist() if detection.obb_px is not None else [],
             center_px = detection.center_px.astype(float).tolist() if detection.center_px is not None else [],
-            polygon_px = polygon_px,
+            # polygon_px = polygon_px,
 
             tf = detection.tf,
-            # tf = Transform(Vector3(*detection.tf_px[0], 0), Quaternion(*detection.tf_px[1])),
             box = detection.box.ravel().tolist() if detection.box is not None else [],
             obb = detection.obb.ravel().tolist() if detection.obb is not None else [],
             center = detection.center.tolist() if detection.center is not None else [],
-            polygon = polygon,
+            # polygon = polygon,
             
             obb_3d = detection.obb_3d.ravel().tolist() if detection.obb_3d is not None else [],
         )
@@ -209,6 +208,7 @@ def detections_to_py(ros_detections):
         detection = Detection(
             id = ros_detection.id,
             tracking_id = ros_detection.tracking_id,
+            group_id = ros_detection.group_id,
 
             label = Label(ros_detection.label),
             score = ros_detection.score,
@@ -218,14 +218,14 @@ def detections_to_py(ros_detections):
             box_px = np.asarray(ros_detection.box_px).reshape(-1, 2),
             obb_px = np.asarray(ros_detection.obb_px).reshape(-1, 2),
             center_px = np.asarray(ros_detection.center_px),
-            polygon_px = Polygon(np.asarray(ros_detection.polygon_px).reshape(-1, 2)),
+            # polygon_px = Polygon(np.asarray(ros_detection.polygon_px).reshape(-1, 2)),
             
             tf = ros_detection.tf,
             # tf = [ros_detection.tf.translation, ros_detection.tf.rotation],
             box = np.asarray(ros_detection.box).reshape(-1, 2),
             obb = np.asarray(ros_detection.obb).reshape(-1, 2),
             center = np.asarray(ros_detection.center),
-            polygon = Polygon(np.asarray(ros_detection.polygon).reshape(-1, 3)),
+            # polygon = Polygon(np.asarray(ros_detection.polygon).reshape(-1, 3)),
 
             obb_3d = np.asarray(ros_detection.obb_3d).reshape(-1, 3),
         )
@@ -296,5 +296,5 @@ def str_to_ros(action_type, str_msg, is_block=True):
     # convert string to json first
     json_msg = str_msg
     if isinstance(str_msg, str):
-        json_msg = json.loads(str_msg)               
+        json_msg = json.loads(str_msg)
     return message_converter.convert_dictionary_to_ros_message(ros_msg_name, json_msg)

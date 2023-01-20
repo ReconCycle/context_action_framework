@@ -18,7 +18,7 @@ The system is split into the following components:
   - Vice Block
   - Vision Block
 
-The system has action blocks, which are high level components, for example: a move block that specifies the start and end positions of a pick-and-place operation and a vision block that gets object positions based on camera images. 
+The system has action blocks, which are high level components, for example: a move block that specifies the start and end positions of a pick-and-place operation and a vision block that gets object positions based on camera images.
 
 The system has a controller that requests the next action to take from the [get next action service](https://github.com/ReconCycle/action_predictor) a.k.a. action predictor. The action predictor doesn't know anything about the controller. The controller is responsible for carrying out the actions.
 
@@ -48,7 +48,7 @@ Several FlexBE states should be created:
 - `Get next action` (read recommended action) is a wrapper to the action prediction model, and should return the next action given the context
 
 
-For each of the actions, a separate FlexBe state that calls an appropriate ActionBlock is needed. 
+For each of the actions, a separate FlexBe state that calls an appropriate ActionBlock is needed.
 
 ## Action Predictor
 
@@ -62,7 +62,7 @@ The context is defined as the state of the system including the work-cell module
 These are all specified as enums in [types.py](src/context_action_framework/types.py).
 
 
-The modules are: 
+The modules are:
 - vision
 - panda1
 - panda2
@@ -118,7 +118,7 @@ Action blocks are high level blocks and an action block can consist of multiple 
 
 The cut block should specify the initial position of the object and the cutter module, where the object is to be cut.
 
-[CutBlock.msg](msg/CutBlock.msg): 
+[CutBlock.msg](msg/CutBlock.msg):
 - enum from_module
 - Transform from_tf
 - enum to_module
@@ -127,7 +127,7 @@ The cut block should specify the initial position of the object and the cutter m
 - enum robot
 - int end_effector
 
-[CutDetails.msg](msg/CutDetails.msg): 
+[CutDetails.msg](msg/CutDetails.msg):
 - bool success
 
 ### [Lever Block](msg/LeverBlock.msg)
@@ -149,7 +149,7 @@ The lever block should specify from where to where to carry out the levering act
 
 The move block specifies the start and end positions of an object and which end effector and robot should do the moving.
 
-[MoveBlock.msg](msg/MoveBlock.msg): 
+[MoveBlock.msg](msg/MoveBlock.msg):
 - enum from_module
 - Transform from_tf
 - enum to_module
@@ -206,9 +206,9 @@ The vice block specifies whether the vice should clamp and turn over or only cla
 
 The vision block specifies whether gap detections should be carried out, which camera to use and above which module. Gap detection is only possible with the realsense camera and also only the realsense camera can be moved to a specified position.
 
-The gap detection is useful for levering actions. The parts detection is useful for moving actions. All coordinates of parts are given in world coordinates with respect to the module. 
+The gap detection is useful for levering actions. The parts detection is useful for moving actions. All coordinates of parts are given in world coordinates with respect to the module.
 
-The parts detection uses a neural network called Yolact for parts segmentation. It uses a kalman filter for tracking and reidentification. 
+The parts detection uses a neural network called Yolact for parts segmentation. It uses a kalman filter for tracking and reidentification.
 
 The gap detection uses the depth image and a classical clusturing approach to determine gaps in the device.
 
@@ -220,7 +220,7 @@ The vision details are a list of detections and gaps (if gap detections were req
 - transform tf
 - bool gap_detection
 
-[VisionDetails](msg/VisionDetails.msg): 
+[VisionDetails](msg/VisionDetails.msg):
 - bool gap_detection
 - Detection[] detections
 - Gap[] gaps
@@ -230,17 +230,21 @@ A detection is defined as the whole or part of a device.
 [Detection](msg/Detection.msg):
 - int id
 - int tracking_id
+- int group_id
 - enum label
 - float score
 - Transform to_px
 - array box_px
 - array obb_px
-- array obb_3d_px
+- array center_px
+<!-- - array obb_3d_px -->
+<!-- - array polygon_px -->
 - Transform tf
 - array box
 - array obb
+- array center
 - array obb_3d
-- array polygon_px
+<!-- - array polygon -->
 
 [Gap](msg/Gap.msg):
 - int id
@@ -250,6 +254,14 @@ A detection is defined as the whole or part of a device.
 - float to_depth
 - array obb
 - array obb_3d
+
+[VisionDetection Service](srv/VisionDetection.srv):
+```
+bool gap_detection
+---
+bool success
+context_action_framework/VisionDetails vision_details
+```
 
 #### Camera Position
 
