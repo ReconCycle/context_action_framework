@@ -38,6 +38,10 @@ class Label(IntEnum):
     pcb_covered = 7
     plastic_clip = 8
 
+    firealarm_front = 9
+    firealarm_back = 10
+    wire = 11
+    screw = 12
 
 class Robot(IntEnum):
     panda1 = 1
@@ -164,7 +168,7 @@ def detections_to_ros(detections):
                 print("len(ros_detection.polygon_px)", len(polygon_px))
                 print("shape detection.polygon_px.exterior.coords", np.array(detection.polygon_px.exterior.coords).shape)
         
-        polygon = []   
+        polygon = []
         if detection.polygon is not None:
             polygon = np.array(detection.polygon.exterior.coords).ravel().tolist()
             if len(polygon) % 3 == 1:
@@ -176,7 +180,7 @@ def detections_to_ros(detections):
             id = detection.id,
             tracking_id = detection.tracking_id,
 
-            label = detection.label.value, 
+            label = detection.label.value,
             score = detection.score,
             
             tf_px = detection.tf_px,
@@ -296,5 +300,5 @@ def str_to_ros(action_type, str_msg, is_block=True):
     # convert string to json first
     json_msg = str_msg
     if isinstance(str_msg, str):
-        json_msg = json.loads(str_msg)               
+        json_msg = json.loads(str_msg)
     return message_converter.convert_dictionary_to_ros_message(ros_msg_name, json_msg)
