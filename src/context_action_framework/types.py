@@ -91,6 +91,12 @@ class Locations:
     # entrance of the cutter
     cutter_entrance = Location(Module.cutter, _trans([0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0])) # todo
 
+    # finish locations
+    battery_finish = Location(Module.cutter, _trans([0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0])) # todo
+    plastic_finish = Location(Module.cutter, _trans([0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0])) # todo
+    pcb_finish = Location(Module.cutter, _trans([0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0])) # todo
+
+
 
 
 # todo: make Detection as close as possible to ROSDetection
