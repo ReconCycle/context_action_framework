@@ -43,6 +43,8 @@ class Label(IntEnum):
     wire = 11
     screw = 12
 
+    battery_covered = 13
+
 class Robot(IntEnum):
     panda1 = 1
     panda2 = 2
