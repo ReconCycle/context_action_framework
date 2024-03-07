@@ -45,6 +45,8 @@ class Label(IntEnum):
 
     battery_covered = 13
 
+    gap = 14
+
 class Robot(IntEnum):
     panda1 = 1
     panda2 = 2
@@ -54,7 +56,7 @@ class Module(IntEnum):
     vision = 0
     panda1 = 1
     panda2 = 2
-    vice = 3
+    vise = 3
     cutter = 4
 
 
@@ -80,15 +82,15 @@ def _trans(vect, quat):
 @dataclass
 class Locations:
     # realsense locations for looking at vice and at the whole vice module
-    vision_above_vice = Location(Module.vice, _trans([0.3, 0.3, 0.4], [0.0, 0.0, -1.0, 0.0]))
-    vision_above_vice_module = Location(Module.vice, _trans([0.3, 0.3, 0.6], [0.0, 0.0, -1.0, 0.0]))
+    vision_above_vice = Location(Module.vise, _trans([0.3, 0.3, 0.4], [0.0, 0.0, -1.0, 0.0]))
+    vision_above_vice_module = Location(Module.vise, _trans([0.3, 0.3, 0.6], [0.0, 0.0, -1.0, 0.0]))
 
     # for pushing out the pin
-    push_device_pin_start = Location(Module.vice, _trans([0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0])) # todo
-    push_device_pin_end = Location(Module.vice, _trans([0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0])) # todo
+    push_device_pin_start = Location(Module.vise, _trans([0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0])) # todo
+    push_device_pin_end = Location(Module.vise, _trans([0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0])) # todo
 
     # tf of where softhand can drop object into vice slide. Needed for moveblock
-    move_vice_slide = Location(Module.vice, _trans([0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0])) # todo
+    move_vice_slide = Location(Module.vise, _trans([0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0])) # todo
 
     # entrance of the cutter
     cutter_entrance = Location(Module.cutter, _trans([0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0])) # todo
