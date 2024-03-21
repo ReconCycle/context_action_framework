@@ -1,0 +1,5 @@
+sensor_msgs/Image image
+---
+bool success
+context_action_framework/Detection[] detections
+sensor_msgs/Image labelled_image

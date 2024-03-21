@@ -78,6 +78,7 @@ add_service_files(
   FILES
   NextAction.srv
   VisionDetection.srv
+  ProcessImg.srv
 )
 
 ## Generate actions in the 'action' folder

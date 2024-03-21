@@ -110,6 +110,7 @@ class Detection:
     tracking_id: Optional[int] = None
 
     label: Optional[Label] = None
+    label_precise: Optional[str] = None
     score: Optional[float] = None
 
     tf_px: Optional[Transform] = None
@@ -191,6 +192,7 @@ def detections_to_ros(detections):
             tracking_id = detection.tracking_id,
 
             label = detection.label.value,
+            label_precise = detection.label_precise,
             score = detection.score,
             
             tf_px = detection.tf_px,
@@ -225,6 +227,7 @@ def detections_to_py(ros_detections):
             tracking_id = ros_detection.tracking_id,
 
             label = Label(ros_detection.label),
+            label_precise = ros_detection.label_precise,
             score = ros_detection.score,
 
             tf_px = ros_detection.tf_px,
