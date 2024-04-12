@@ -58,6 +58,7 @@ class Module(IntEnum):
     panda2 = 2
     vise = 3
     cutter = 4
+    cnc = 5
 
 
 class EndEffector(IntEnum):
