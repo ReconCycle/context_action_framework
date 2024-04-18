@@ -28,24 +28,35 @@ class Action(IntEnum):
 
 
 class Label(IntEnum):
+    hca = 0
+    smoke_detector = 1
+
     hca_front = 0
     hca_back = 1
     hca_side1 = 2
     hca_side2 = 3
-    battery = 4
-    pcb = 5
-    internals = 6
-    pcb_covered = 7
-    plastic_clip = 8
 
-    firealarm_front = 9
-    firealarm_back = 10
-    wire = 11
-    screw = 12
 
-    battery_covered = 13
+    battery = 2
+    pcb = 3
+    internals = 4
+    pcb_covered = 5
+    plastic_clip = 6
 
-    gap = 14
+    # firealarm_front = 9
+    # firealarm_back = 10
+    wire = 7
+    screw = 8
+
+    battery_covered = 9
+
+    gap = 10
+
+class LabelFace(IntEnum):
+    front = 0
+    back = 1
+    side1 = 2
+    side2 = 3
 
 class Robot(IntEnum):
     panda1 = 1
@@ -111,6 +122,7 @@ class Detection:
     tracking_id: Optional[int] = None
 
     label: Optional[Label] = None
+    label_face: Optional[LabelFace] = None
     label_precise: Optional[str] = None
     score: Optional[float] = None
 
@@ -133,6 +145,10 @@ class Detection:
     mask_contour: Optional[np.ndarray] = None
     tracking_score: Optional[float] = None
     tracking_box: Optional[np.ndarray] = None
+
+    parent_frame: Optional[Any] = None # TODO!!!!
+    table_name: Optional[str] = None # TODO!!!!
+    tf_name: Optional[str] = None # TODO!!!!
 
 
 @dataclass
@@ -187,12 +203,17 @@ def detections_to_ros(detections):
                 print("SOMETHING WENT WRONG WITH POLYGON RAVEL. Not divisible by 3.")
                 print("len(ros_detection.polygon)", len(polygon))
                 print("shape detection.polygon.exterior.coords", np.array(detection.polygon.exterior.coords).shape)
+        
+        label_face = None
+        if detection.label_face is not None:
+            label_face = detection.label_face.value
 
         ros_detection = ROSDetection(
             id = detection.id,
             tracking_id = detection.tracking_id,
 
             label = detection.label.value,
+            label_face = label_face,
             label_precise = detection.label_precise,
             score = detection.score,
             
@@ -223,11 +244,16 @@ def detections_to_py(ros_detections):
     detections = []
 
     for ros_detection in ros_detections:
+        label_face = None
+        if ros_detection.label_face is not None:
+            label_face = LabelFace(ros_detection.label_face)
+        
         detection = Detection(
             id = ros_detection.id,
             tracking_id = ros_detection.tracking_id,
 
             label = Label(ros_detection.label),
+            label_face = label_face,
             label_precise = ros_detection.label_precise,
             score = ros_detection.score,
 

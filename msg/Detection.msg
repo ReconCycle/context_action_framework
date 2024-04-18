@@ -2,6 +2,7 @@ int64 id
 int64 tracking_id
 
 int8 label    # Label intEnum
+int8 label_face
 string label_precise
 float32 score # segmentation score
 

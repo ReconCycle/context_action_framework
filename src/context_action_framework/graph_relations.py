@@ -340,10 +340,14 @@ class GraphRelations:
         return found_dets
 
     @staticmethod
-    def get_first(detections, label):
+    def get_first(detections, label, label_face=None):
         for detection in detections:
-            if detection.label == label:
-                return detection
+            if label_face is None:
+                if detection.label == label:
+                    return detection
+            else:
+                if detection.label == label and detection.label_face == label_face:
+                    return detection
 
         return None
     
