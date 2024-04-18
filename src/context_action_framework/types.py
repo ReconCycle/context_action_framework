@@ -30,26 +30,14 @@ class Action(IntEnum):
 class Label(IntEnum):
     hca = 0
     smoke_detector = 1
-
-    hca_front = 0
-    hca_back = 1
-    hca_side1 = 2
-    hca_side2 = 3
-
-
     battery = 2
     pcb = 3
     internals = 4
     pcb_covered = 5
     plastic_clip = 6
-
-    # firealarm_front = 9
-    # firealarm_back = 10
     wire = 7
     screw = 8
-
     battery_covered = 9
-
     gap = 10
 
 class LabelFace(IntEnum):
