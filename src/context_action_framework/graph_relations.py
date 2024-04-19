@@ -68,14 +68,18 @@ def compute_is_next_to(poly1, poly2):
     if dist < 10: # pixels
         return True
 
-def exists_detection(detections, det_or_label):
+def exists_detection(detections, det_or_label, label_face=None):
     if isinstance(det_or_label, Label):
         label = det_or_label
         
         found_dets = []
         for detection in detections:
-            if detection.label == label:
-                found_dets.append(detection)
+            if label_face is None:
+                if detection.label == label:
+                    found_dets.append(detection)
+            else:
+                if detection.label == label and detection.label_face == label_face:
+                    found_dets.append(detection)
 
         return found_dets
     else:
@@ -320,8 +324,8 @@ class GraphRelations:
         
         return next_to_dets
     
-    def exists(self, det_or_label):
-        return exists_detection(self.valid_detections, det_or_label)
+    def exists(self, det_or_label, label_face=None):
+        return exists_detection(self.valid_detections, det_or_label, label_face)
 
     def get_all_inside(self, det: Detection):
         inside_dets_ids = [det_pair[0] for det_pair in self.inside_edges if det_pair[1] == det.id]
