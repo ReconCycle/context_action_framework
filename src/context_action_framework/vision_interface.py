@@ -199,23 +199,3 @@ class VisionInterface(BaseVisionInterface):
             #self.detections = [detections_to_py(detection) for detection in data.detections]
             detections = detections_to_py(data.detections)
             self._detections = detections
-
-def augment_detections(detections):
-    """ Add additional fields to Vision System Detections."""
-    for detection in detections:
-        front_side_up = True
-        label_mapping = {}
-        #label_mapping = {
-        #    Label.hca_back: Label.hca,
-        #    Label.hca_front: Label.hca,
-        #    Label.firealarm_front: Label.firealarm,
-        #    Label.firealarm_back: Label.firealarm,
-        #}
-    
-        if detection.label in label_mapping:
-            detection.label = label_mapping[detection.label]
-            front_side_up = detection.tf_label in [Label.hca_front, Label.firealarm_front]
-    
-        detection.correct_side_up = front_side_up
-        self._detections = detections
-    
