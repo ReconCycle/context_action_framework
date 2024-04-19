@@ -134,9 +134,9 @@ class Detection:
     tracking_score: Optional[float] = None
     tracking_box: Optional[np.ndarray] = None
 
-    parent_frame: Optional[Any] = None # TODO!!!!
-    table_name: Optional[str] = None # TODO!!!!
-    tf_name: Optional[str] = None # TODO!!!!
+    parent_frame: Optional[str] = None
+    table_name: Optional[str] = None
+    tf_name: Optional[str] = None
 
 
 @dataclass
@@ -191,17 +191,13 @@ def detections_to_ros(detections):
                 print("SOMETHING WENT WRONG WITH POLYGON RAVEL. Not divisible by 3.")
                 print("len(ros_detection.polygon)", len(polygon))
                 print("shape detection.polygon.exterior.coords", np.array(detection.polygon.exterior.coords).shape)
-        
-        label_face = None
-        if detection.label_face is not None:
-            label_face = detection.label_face.value
 
         ros_detection = ROSDetection(
             id = detection.id,
             tracking_id = detection.tracking_id,
 
             label = detection.label.value,
-            label_face = label_face,
+            label_face = detection.label_face.value if detection.label_face is not None else None,
             label_precise = detection.label_precise,
             score = detection.score,
             
@@ -220,6 +216,10 @@ def detections_to_ros(detections):
             polygon = polygon,
             
             obb_3d = detection.obb_3d.ravel().tolist() if detection.obb_3d is not None else [],
+
+            parent_frame = detection.parent_frame,
+            table_name = detection.table_name,
+            tf_name = detection.tf_name,
         )
 
 
@@ -232,16 +232,13 @@ def detections_to_py(ros_detections):
     detections = []
 
     for ros_detection in ros_detections:
-        label_face = None
-        if ros_detection.label_face is not None:
-            label_face = LabelFace(ros_detection.label_face)
-        
+       
         detection = Detection(
             id = ros_detection.id,
             tracking_id = ros_detection.tracking_id,
 
             label = Label(ros_detection.label),
-            label_face = label_face,
+            label_face = LabelFace(ros_detection.label_face) if ros_detection.label_face is not None else None,
             label_precise = ros_detection.label_precise,
             score = ros_detection.score,
 
@@ -260,6 +257,10 @@ def detections_to_py(ros_detections):
             polygon = Polygon(np.asarray(ros_detection.polygon).reshape(-1, 3)),
 
             obb_3d = np.asarray(ros_detection.obb_3d).reshape(-1, 3),
+
+            parent_frame = ros_detection.parent_frame,
+            table_name = ros_detection.table_name,
+            tf_name = ros_detection.tf_name,
         )
         detections.append(detection)
 

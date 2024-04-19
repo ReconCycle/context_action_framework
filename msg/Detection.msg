@@ -22,3 +22,7 @@ float32[] polygon
 
 # in world coords the cuboid containing the object
 float32[] obb_3d
+
+string parent_frame
+string table_name
+string tf_name
