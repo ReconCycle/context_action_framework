@@ -53,8 +53,8 @@ class Robot(IntEnum):
 
 class Module(IntEnum):
     vision = 0
-    panda1 = 1
-    panda2 = 2
+    panda_1 = 1
+    panda_2 = 2
     vise = 3
     cutter = 4
     cnc = 5
@@ -102,16 +102,15 @@ class Locations:
 
 
 
-
-# todo: make Detection as close as possible to ROSDetection
 @dataclass
 class Detection:
-    id: Optional[int] = None
-    tracking_id: Optional[int] = None
+    id: Optional[int] = None                   # index in detections list
+    tracking_id: Optional[int] = None          # unique ID per label that is stable across frames.
 
-    label: Optional[Label] = None
-    label_face: Optional[LabelFace] = None
-    label_precise: Optional[str] = None
+    label: Optional[Label] = None              # hca/smoke_detector/battery/internals/...
+    label_face: Optional[LabelFace] = None     # front/back/side1/side2
+    label_precise: Optional[str] = None        # 01/01.1/03.1/...
+    label_precise_name: Optional[str] = None   # kalo/minal/fumonic/siemens/...
     score: Optional[float] = None
 
     tf_px: Optional[Transform] = None
@@ -168,6 +167,49 @@ class Gap:
 
     # pose_stamped: Optional[PoseStamped] = None
 
+def lookup_label_precise_name(label, label_precise):
+
+    classify_num_before_dot = label_precise.rsplit(".")[0]
+
+    classify_mapping_smoke_dets = {
+        "01": "senys",
+        "02": "fumonic",
+        "03": "siemens",
+        "04": "hekatron",
+        "05": "kalo",
+        "06": "fireangel",
+        "07": "siemens2",
+        "08": "zettler",
+        "09": "honeywell",
+        "10": "esser",
+    }
+    classify_mapping_hcas = {
+        "01": "kalo2",
+        "02": "minol",
+        "03": "kalo",
+        "04": "techem",
+        "05": "ecotron",
+        "06": "heimer",
+        "07": "caloric",
+        "08": "exim",
+        "09": "ista",
+        "10": "qundis",
+        "11": "enco",
+        "12": "kundo",
+        "13": "qundis2",
+    }
+
+    label_precise_name = None
+    if label == Label.hca:
+        if classify_num_before_dot in classify_mapping_hcas:
+            label_precise_name = classify_mapping_hcas[classify_num_before_dot]
+
+    elif label == Label.smoke_detector:
+        if classify_num_before_dot in classify_mapping_hcas:
+            label_precise_name = classify_mapping_smoke_dets[classify_num_before_dot]
+
+    return label_precise_name
+
 
 def detections_to_ros(detections):
     ros_detections = []
@@ -199,6 +241,7 @@ def detections_to_ros(detections):
             label = detection.label.value,
             label_face = detection.label_face.value if detection.label_face is not None else None,
             label_precise = detection.label_precise,
+            label_precise_name = detection.label_precise_name,
             score = detection.score,
             
             tf_px = detection.tf_px,
@@ -240,6 +283,7 @@ def detections_to_py(ros_detections):
             label = Label(ros_detection.label),
             label_face = LabelFace(ros_detection.label_face) if ros_detection.label_face is not None else None,
             label_precise = ros_detection.label_precise,
+            label_precise_name = ros_detection.label_precise_name,
             score = ros_detection.score,
 
             tf_px = ros_detection.tf_px,

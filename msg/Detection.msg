@@ -1,10 +1,11 @@
-int64 id
-int64 tracking_id
+int64 id                        # index in detections list
+int64 tracking_id               # unique ID per label that is stable across frames.
 
-int8 label    # Label intEnum
-int8 label_face
-string label_precise
-float32 score # segmentation score
+int8 label                      # Label intEnum, hca/smoke_detector/battery/internals/...
+int8 label_face                 # LabelFace intEnum front/back/side1/side2
+string label_precise            # 01/01.1/03.1/...
+string label_precise_name       # kalo/minal/fumonic/siemens/...
+float32 score                   # segmentation score
 
 # in pixel coords
 geometry_msgs/Transform tf_px   # transform of object center
