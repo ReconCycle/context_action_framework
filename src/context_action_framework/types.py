@@ -35,10 +35,14 @@ class Label(IntEnum):
     internals = 4
     pcb_covered = 5
     plastic_clip = 6
-    wire = 7
+    wires = 7
     screw = 8
     battery_covered = 9
     gap = 10
+    
+    hca_empty = 11
+    smoke_detector_insides = 12
+    smoke_detector_insides_empty = 13
 
 class LabelFace(IntEnum):
     front = 0
