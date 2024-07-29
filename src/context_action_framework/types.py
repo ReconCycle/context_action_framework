@@ -123,11 +123,17 @@ class Detection:
     center_px: Optional[np.ndarray] = None
     polygon_px: Optional[Polygon] = None
 
+    edge_px_small: Optional[float] = None
+    edge_px_large: Optional[float] = None
+
     tf: Optional[Transform] = None
     box: Optional[np.ndarray] = None
     obb: Optional[np.ndarray] = None
     center: Optional[np.ndarray] = None
     polygon: Optional[Polygon] = None
+
+    edge_small: Optional[float] = None
+    edge_large: Optional[float] = None
 
     obb_3d: Optional[np.ndarray] = None
 
@@ -140,6 +146,9 @@ class Detection:
     parent_frame: Optional[str] = None
     table_name: Optional[str] = None
     tf_name: Optional[str] = None
+
+    valid: Optional[str] = None
+    is_invalid_reason: Optional[str] = None
 
 
 @dataclass
