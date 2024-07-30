@@ -308,8 +308,8 @@ def detections_to_py(ros_detections):
             
             tf = ros_detection.tf,
             # tf = [ros_detection.tf.translation, ros_detection.tf.rotation],
-            box = np.asarray(ros_detection.box).reshape(-1, 2),
-            obb = np.asarray(ros_detection.obb).reshape(-1, 2),
+            box = np.asarray(ros_detection.box).reshape(-1, 3),
+            obb = np.asarray(ros_detection.obb).reshape(-1, 3),
             center = np.asarray(ros_detection.center),
             polygon = Polygon(np.asarray(ros_detection.polygon).reshape(-1, 3)),
 
