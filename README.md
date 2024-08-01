@@ -22,7 +22,7 @@ The system has action blocks, which are high level components, for example: a mo
 
 The system has a controller that requests the next action to take from the [get next action service](https://github.com/ReconCycle/action_predictor) a.k.a. action predictor. The action predictor doesn't know anything about the controller. The controller is responsible for carrying out the actions.
 
-![Diagram](./readme_diagram.svg)
+![Diagram](./readme/readme_diagram.svg)
 
 The action predictor stores the previous predicted actions and whether they were successful. It uses this in a prediction model to determine which action should be performed next given the current context. The action predictor returns the next action to the controller. The system is illustrated in the above diagram.
 
@@ -83,15 +83,26 @@ The Cameras are:
 - realsense
 
 The Labels of objects are:
-- hca front
-- hca back
-- hca side 1
-- hca side 2
+- hca
+- hca_empty 
+- smoke_detector
+- smoke_detector_insides
+- smoke_detector_insides_empty
 - battery
 - pcb
 - internals
-- pcb covered
-- palastic clip
+- pcb_covered
+- plastic_clip
+- wires
+- screw
+- battery_covered
+- gap
+
+The faces of the HCAs and smoke detectors are:
+- front
+- back
+- side 1
+- side 2
 
 The actions are:
 - none
@@ -106,6 +117,75 @@ The actions are:
 - vice
 
 These are all specified as enums in [types.py](src/context_action_framework/types.py).
+
+## Device Names
+
+![Diagram](./readme/device_chart.png)
+
+HCA names:
+
+1. kalo2
+2. minol
+3. kalo
+4. techem
+5. ecotron
+6. heimer
+7. caloric
+8. exim
+9. ista
+10. qundis
+11. enco
+12. kundo
+13. qundis2
+
+Smoke detector names:
+1. senys
+2. fumonic
+3. siemens
+4. hekatron
+5. kalo
+6. fireangel
+7. siemens2
+8. zettler
+9. honeywell
+10. esser
+
+The context action framework provides a function `lookup_label_precise_name` to get the device name given the device number. See [types.py](src/context_action_framework/types.py).
+
+
+## ROS Detection Message Format
+
+The context action framework provides the `Detection` class, defined in [types.py](src/context_action_framework/types.py). There are two helper functions `detections_to_ros` and `detections_to_py` to convert a python `Detection` object to a ROS [`Detection.msg`](https://github.com/ReconCycle/context_action_framework/blob/main/msg/Detection.msg) and from ROS message back to python object.
+
+Each detection has the following attributes:
+- id (int): index in detections list
+- tracking_id (int): unique ID per label that is stable across frames.
+
+- label (Label): hca/smoke_detector/battery...
+- label_face (LabelFace/None): front/back/side1/side2
+- label_precise (str/None): 01/01.1/02...
+- label_precise_name (str/None): kalo/minal/fumonic/siemens/...
+- score (float): segmentation confidence
+
+- tf_px (Transform): transform in pixels
+- box_px (array 4x2): bounding box in pixels
+- obb_px (array 4x2): oriented bounding box in pixels
+- center_px (array 2): center coordinates in pixels
+- polygon_px (Polygon nx2): polygon segmentation in pixels
+
+- tf (Transform): transform in meters
+- box (array 4x3): bounding box in meters
+- obb (array 4x3): oriented bounding box in meters
+- center (array 3): center coordinates in meters
+- polygon (Polygon nx3): polygon segmentation in meters
+
+- obb_3d (array 8x3): oriented bounding box with depth in meters
+
+- parent_frame (str): ROS parent frame name
+- table_name (str/None): table name of detection location 
+- tf_name (str): ROS transform name corresponding to published detection TF
+
+
 
 ## Action Blocks
 
