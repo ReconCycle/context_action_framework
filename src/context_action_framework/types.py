@@ -247,6 +247,11 @@ def detections_to_ros(detections):
                 print("len(ros_detection.polygon)", len(polygon))
                 print("shape detection.polygon.exterior.coords", np.array(detection.polygon.exterior.coords).shape)
 
+        # print("detection.box.shape", detection.box.shape)
+        # print("detection.obb.shape", detection.obb.shape)
+        # print("detection.center.shape", detection.center.shape)
+        # print("detection.obb_3d.shape", detection.obb_3d.shape)
+
         ros_detection = ROSDetection(
             id = detection.id,
             tracking_id = detection.tracking_id,
@@ -288,7 +293,6 @@ def detections_to_py(ros_detections):
     detections = []
 
     for ros_detection in ros_detections:
-       
         detection = Detection(
             id = ros_detection.id,
             tracking_id = ros_detection.tracking_id,
@@ -308,8 +312,9 @@ def detections_to_py(ros_detections):
             
             tf = ros_detection.tf,
             # tf = [ros_detection.tf.translation, ros_detection.tf.rotation],
-            box = np.asarray(ros_detection.box).reshape(-1, 3),
-            obb = np.asarray(ros_detection.obb).reshape(-1, 3),
+            
+            box = np.asarray(ros_detection.box).reshape(-1, 2),
+            obb = np.asarray(ros_detection.obb).reshape(-1, 2),
             center = np.asarray(ros_detection.center),
             polygon = Polygon(np.asarray(ros_detection.polygon).reshape(-1, 3)),
 
@@ -319,6 +324,7 @@ def detections_to_py(ros_detections):
             table_name = ros_detection.table_name,
             tf_name = ros_detection.tf_name,
         )
+        print("detection.box", detection.box)
         detections.append(detection)
 
     return detections
