@@ -180,37 +180,37 @@ class Gap:
 
     # pose_stamped: Optional[PoseStamped] = None
 
+classify_mapping_smoke_dets = {
+    "01": "senys",
+    "02": "fumonic",
+    "03": "siemens",
+    "04": "hekatron",
+    "05": "kalo",
+    "06": "fireangel",
+    "07": "siemens2",
+    "08": "zettler",
+    "09": "honeywell",
+    "10": "esser",
+}
+classify_mapping_hcas = {
+    "01": "kalo2",
+    "02": "minol",
+    "03": "kalo",
+    "04": "techem",
+    "05": "ecotron",
+    "06": "heimer",
+    "07": "caloric",
+    "08": "exim",
+    "09": "ista",
+    "10": "qundis",
+    "11": "enco",
+    "12": "kundo",
+    "13": "qundis2",
+}
+
 def lookup_label_precise_name(label, label_precise):
 
     classify_num_before_dot = label_precise.rsplit(".")[0]
-
-    classify_mapping_smoke_dets = {
-        "01": "senys",
-        "02": "fumonic",
-        "03": "siemens",
-        "04": "hekatron",
-        "05": "kalo",
-        "06": "fireangel",
-        "07": "siemens2",
-        "08": "zettler",
-        "09": "honeywell",
-        "10": "esser",
-    }
-    classify_mapping_hcas = {
-        "01": "kalo2",
-        "02": "minol",
-        "03": "kalo",
-        "04": "techem",
-        "05": "ecotron",
-        "06": "heimer",
-        "07": "caloric",
-        "08": "exim",
-        "09": "ista",
-        "10": "qundis",
-        "11": "enco",
-        "12": "kundo",
-        "13": "qundis2",
-    }
 
     label_precise_name = None
     if label == Label.hca:
@@ -222,6 +222,24 @@ def lookup_label_precise_name(label, label_precise):
             label_precise_name = classify_mapping_smoke_dets[classify_num_before_dot]
 
     return label_precise_name
+
+
+def classify_name_to_class_id(classify_name):
+    """
+    convert smokedet_kalo to 05
+    """
+    name_split = classify_name.rsplit('_')
+    name_type = name_split[0]
+    name = name_split[1]
+
+    if name_type in ["firealarm", "smokedet"]:
+        # which number does `allow_item_name' it belong to?
+        name_type = "firealarm" # in this codebase it is always called firealarm, never smokedet
+        class_id =  list(classify_mapping_smoke_dets.keys())[list(classify_mapping_smoke_dets.values()).index(name)]
+    elif name_type == "hca":
+        class_id = list(classify_mapping_hcas.keys())[list(classify_mapping_hcas.values()).index(name)]
+
+    return name_type, class_id
 
 
 def detections_to_ros(detections):
