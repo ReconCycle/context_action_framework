@@ -75,9 +75,9 @@ class VisionInterface(BaseVisionInterface):
                 rospy.init_node("vision_interface_nove")
             except:
                 pass
-                
+
         rospy.loginfo("VisionUtils listening to: {}".format(self._vision_topic))
-        self._detections_sub = rospy.Subscriber(self._vision_topic, Detections, self._process_detections)
+        #self._detections_sub = rospy.Subscriber(self._vision_topic, Detections, self._process_detections)
         self._enable_camera_svc = rospy.ServiceProxy(self._activate_vision_service_topic, SetBool)
         self._process_img_srv_proxy = rospy.ServiceProxy(self._process_img_service_topic, ProcessImg)
         rospy.wait_for_service(self._process_img_service_topic, timeout)
@@ -113,7 +113,7 @@ class VisionInterface(BaseVisionInterface):
         except rospy.ServiceException as e:
             print("VisionInterface: Service call failed: %s"%e)
 
-    def get_detections(self, desired_class: Label = None, timeout = 3.0):
+    def get_detections(self, desired_class: Label = None, timeout = 5.0):
         """ 
         Function that calls vision_utils.update_detections and allows for a number of retries.
 
@@ -122,7 +122,7 @@ class VisionInterface(BaseVisionInterface):
         timeout: timeout value in seconds.
 
         Returns:
-        
+
         detections only of particular class, if desired_class is not None
         all detections, if desired_class is None. May return empty list if message received but no objects detected.
         None, if no detections message is received.
@@ -131,30 +131,28 @@ class VisionInterface(BaseVisionInterface):
         >>> detections = vision_interface.get_detections(desired_class = Label.smoke_detector, timeout = 3)
         """
         DEFAULT_WAIT_TIME_FOR_MESSAGE = 2 # rospy.wait_for_message timeout. If this is too low (in regards to vision system FPS), we will never receive a message within specified time
-        MAX_N_RETRIES = int(timeout/DEFAULT_WAIT_TIME_FOR_MESSAGE)
-        
+
         received_message = 0
         success = 0 # Keep track of 1. whether we received a message, or 2. found a desired object
-        
-        cur_n_retry = 0
-        
-        while (success==0) and (cur_n_retry<MAX_N_RETRIES):
+
+        self._detections = None
+        start_t = time.time()
+        while (success==0) and ((time.time() - start_t) < timeout):
             try:
                 self._update_detections(timeout=DEFAULT_WAIT_TIME_FOR_MESSAGE)
-                received_message = 1 # We received a message
-                if desired_class is None: 
+
+                if (desired_class is None) and (len(self._detections)>0):
                     success = 1
                     return self._detections
                 else:
                     # Even if we successfully get detections msg, check that at least one item of desired class if found. Else, keep looking. 
                     #detections = self.get_particular_class_from_detections(desired_class = desired_class)
                     detections = [i for i in self._detections if i.label == desired_class]
-                    print(detections)
                     if len(detections) > 0:
                         success = 1
                         return detections
             except Exception as e:
-                cur_n_retry+=1
+                0
 
         return None # None if no message received or no desired class detections available
 
@@ -168,7 +166,7 @@ class VisionInterface(BaseVisionInterface):
         if enable not in [True, False]:
             raise ValueError("enable_camera argument should be a boolean type")
         self._enable_camera_svc.call(enable)
-    
+
     def detections_to_description(self, detections = None):
         """ Takes the latest vision detections and transforms then into a user-friendly textual description of each
         detected object. Useful for LLM."""
@@ -180,7 +178,7 @@ class VisionInterface(BaseVisionInterface):
             #description += f"{index}. Object {Label(obj.label).name} at world coordinates x = [{obj.tf.translation.x} {obj.tf.translation.y} {obj.tf.translation.z}]\n"
             description += f"{index}. [{DisassemblyObject.general_class}].\n"
         return description
-        
+
     def _update_detections(self, timeout = 0.5):
         """ Wait for ros Detections message within specified timeout.
         Args:
