@@ -71,6 +71,7 @@ add_message_files(
   TurnOverDetails.msg
   ViceDetails.msg
   VisionDetails.msg
+  VisionGroup.msg
 )
 
 ## Generate services in the 'srv' folder

@@ -1,0 +1,3 @@
+Header header
+sensor_msgs/Image cropped_image
+context_action_framework/Detection[] detections
