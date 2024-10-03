@@ -342,7 +342,7 @@ def detections_to_py(ros_detections):
             table_name = ros_detection.table_name,
             tf_name = ros_detection.tf_name,
         )
-        print("detection.box", detection.box)
+        # print("detection.box", detection.box)
         detections.append(detection)
 
     return detections
